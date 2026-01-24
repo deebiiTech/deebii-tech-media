@@ -31,6 +31,10 @@
         
         #mobile-menu { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(-100%); }
         #mobile-menu.active { transform: translateX(0); }
+        #art-content {
+    text-align: justify;
+    text-justify: inter-word;
+}
 
         input::placeholder { font-size: 12px; opacity: 0.7; }
         .hero-gradient { background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); }
@@ -276,21 +280,37 @@
     </div>
 
    <div id="article-modal" class="fixed inset-0 bg-white z-[6000] hidden overflow-y-auto">
-    <div class="full-width bbc-red p-5 sticky top-0 flex justify-between items-center text-white shadow-xl">
-        <button onclick="closeArticle()" class="font-black flex items-center gap-3 bg-white/10 px-4 py-2 rounded uppercase text-xs hover:bg-white/20">
+    <div class="w-full bbc-red p-4 sticky top-0 flex justify-between items-center text-white shadow-2xl z-[7000]">
+        <button onclick="closeArticle()" class="font-black flex items-center gap-2 bg-white/10 px-4 py-2 rounded uppercase text-xs hover:bg-white/20 transition">
             <i class="fas fa-arrow-left"></i> Deebi'i
         </button>
-
-        <button onclick="copyLink()" class="bg-white text-red-700 px-4 py-2 rounded uppercase text-[10px] font-black shadow-lg hover:bg-gray-100 transition flex items-center gap-2">
+        
+        <button onclick="copyLink()" class="bg-white text-red-700 px-5 py-2 rounded-full text-[10px] font-black uppercase shadow-lg hover:scale-105 transition flex items-center gap-2">
             <i class="fas fa-copy"></i> Link Kooppii Godhi
         </button>
 
-        <div class="flex items-center gap-2">
-            <img src="Logo.PNG" class="h-6 bg-white p-0.5 rounded">
-            <span class="font-black uppercase italic tracking-tighter text-sm">Deebii Media</span>
+        <div class="hidden md:flex items-center gap-2 italic">
+            <span class="font-black uppercase tracking-tighter text-sm">Deebii Media</span>
         </div>
     </div>
+
+    <article class="max-w-4xl mx-auto px-4 py-10">
+        <header class="mb-8">
+            <h1 id="art-title" class="text-3xl md:text-5xl font-black mb-6 leading-tight italic text-gray-900"></h1>
+            <div class="h-1 w-20 bbc-red mb-6"></div>
+        </header>
+
+        <img id="art-img" class="w-full h-auto mb-10 rounded-lg shadow-2xl object-cover">
+
+        <div id="art-content" class="text-lg md:text-xl leading-relaxed text-gray-800 font-serif text-justify whitespace-pre-wrap px-2">
+            </div>
+
+        <div class="mt-20 pt-10 border-t border-gray-100 flex justify-between items-center">
+            <p class="text-xs text-gray-400 uppercase font-bold">© 2026 Deebii Tech & Media</p>
+            <button onclick="deleteCurrentArticle()" class="text-red-600 text-[10px] font-bold border border-red-100 px-4 py-2 rounded hover:bg-red-50 uppercase">Haqi (Delete)</button>
         </div>
+    </article>
+</div>
         <div class="main-wrapper py-16">
             <div class="max-w-4xl mx-auto">
                 <h1 id="art-title" class="text-3xl md:text-6xl font-black text-gray-900 mb-10 italic leading-[1.1] text-justify"></h1>
@@ -592,6 +612,7 @@ function copyLink() {
     </script>
 </body>
 </html>
+
 
 
 
