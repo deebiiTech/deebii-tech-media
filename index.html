@@ -10,6 +10,7 @@
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap');
@@ -18,200 +19,288 @@
         .bbc-red { background-color: #B80000; }
         .footer-luxury { background: linear-gradient(135deg, #1e3a8a 0%, #000000 100%); }
         
-        .nav-link { color: #202224; font-weight: 700; font-size: 14px; transition: 0.3s; border-bottom: 3px solid transparent; padding: 12px 0; display: inline-block; cursor: pointer; }
+        .nav-link { color: #202224; font-weight: 700; font-size: 13px; transition: 0.3s; border-bottom: 3px solid transparent; padding: 15px 0; display: inline-block; cursor: pointer; text-transform: uppercase; }
         .nav-link:hover { color: #B80000; border-bottom: 3px solid #B80000; }
         
-        .main-wrapper { max-width: 1008px; margin: 0 auto; padding: 0 16px; }
+        .main-wrapper { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
         .full-width { width: 100%; }
         
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 5000; align-items: center; justify-content: center; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 5000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         
-        #art-content { text-align: justify; text-justify: inter-word; }
-        
-        /* Hamburger Menu Style */
-        #mobile-menu { transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
+        #mobile-menu { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(-100%); }
         #mobile-menu.active { transform: translateX(0); }
+
+        input::placeholder { font-size: 12px; opacity: 0.7; }
+        .hero-gradient { background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); }
     </style>   
 </head>
 <body>
 
-    <header class="full-width bbc-red text-white py-3 shadow-md relative z-[2000]">
+    <header class="full-width bbc-red text-white py-4 shadow-lg relative z-[2000]">
         <div class="main-wrapper flex justify-between items-center">
-            <div class="flex items-center gap-3 cursor-pointer" onclick="location.reload()">
-                <img src="Logo.PNG" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Deebii+Tech&background=white&color=B80000&size=128'" alt="Logo" class="h-10 md:h-12 rounded shadow-sm">
-                <div class="h-8 w-px bg-white/30 hidden md:block"></div>
-                <h1 class="text-xl md:text-2xl font-black uppercase tracking-tighter">Deebii Tech & Media</h1>
+            <div class="flex items-center gap-4 cursor-pointer" onclick="location.reload()">
+                <img src="Logo.PNG" onerror="this.src='https://ui-avatars.com/api/?name=Deebii+Tech&background=white&color=B80000'" class="h-10 md:h-14 rounded-md shadow-md bg-white p-1">
+                <div>
+                    <h1 class="text-xl md:text-3xl font-black uppercase tracking-tighter leading-none">Deebii Tech</h1>
+                    <p class="text-[9px] md:text-[11px] font-bold opacity-80 tracking-[0.2em] uppercase">Media & Solutions</p>
+                </div>
             </div>
             
-            <div class="flex items-center gap-4">
-                <div class="hidden lg:flex items-center bg-white/10 px-4 py-1 rounded border border-white/20">
-                    <input type="text" placeholder="Barbaadi..." class="bg-transparent outline-none text-xs text-white w-32">
-                    <i class="fas fa-search text-white/50 text-xs"></i>
+            <div class="flex items-center gap-3">
+                <div class="hidden md:flex items-center bg-black/20 px-4 py-2 rounded-full border border-white/10 group focus-within:bg-white focus-within:border-white transition-all">
+                    <input type="text" id="search-input" onkeyup="searchPosts()" placeholder="Barbaadi..." class="bg-transparent outline-none text-xs text-white focus:text-black w-40 transition-all">
+                    <i class="fas fa-search text-white/50 group-focus-within:text-black text-xs"></i>
                 </div>
-                <div class="hidden md:flex gap-2 text-[10px] font-bold">
-                    <button class="px-3 py-1 bg-white text-red-700 rounded uppercase">Sign In</button>
-                    <button class="px-3 py-1 border border-white rounded uppercase">Sign Up</button>
+                
+                <div id="auth-header-btns" class="hidden md:flex gap-2">
+                    <button onclick="openAuth(false)" class="px-4 py-1.5 bg-white text-red-800 rounded-sm text-[11px] font-black uppercase hover:bg-gray-100 transition shadow-sm">Sign In</button>
+                    <button onclick="openAuth(true)" class="px-4 py-1.5 border-2 border-white text-white rounded-sm text-[11px] font-black uppercase hover:bg-white hover:text-red-800 transition">Sign Up</button>
                 </div>
-                <button onclick="toggleMenu()" class="lg:hidden text-2xl"><i class="fas fa-bars"></i></button>
+
+                <button onclick="toggleMenu()" class="lg:hidden text-2xl p-2"><i class="fas fa-bars"></i></button>
             </div>
         </div>
     </header>
 
     <nav class="full-width bg-white border-b sticky top-0 z-[1000] shadow-sm">
-        <div class="main-wrapper flex justify-between items-center">
-            <div class="flex items-center space-x-8 overflow-x-auto no-scrollbar whitespace-nowrap">
-                <a onclick="loadContent()" class="nav-link uppercase">Oduu</a>
-                <a onclick="filterByMenu('Oromiyaa')" class="nav-link uppercase">Oromiyaa</a>
-                <a onclick="filterByMenu('Itoophiyaa')" class="nav-link uppercase">Itoophiyaa</a>
-                <a onclick="filterByMenu('Afrikaa')" class="nav-link uppercase">Afrikaa</a>
-                <a onclick="filterByMenu('Addunyaa')" class="nav-link uppercase">Addunyaa</a>
-                <a onclick="filterByMenu('Tajaajila')" class="nav-link uppercase">Tajaajila</a>
-                <button onclick="showAdmin()" class="text-gray-300 hover:text-red-700 transition px-2"><i class="fas fa-lock"></i></button>
+        <div class="main-wrapper flex items-center justify-between">
+            <div class="flex items-center space-x-6 md:space-x-10 overflow-x-auto no-scrollbar whitespace-nowrap py-1">
+                <a onclick="loadContent()" class="nav-link">Oduu</a>
+                <a onclick="filterByMenu('Oromiyaa')" class="nav-link">Oromiyaa</a>
+                <a onclick="filterByMenu('Itoophiyaa')" class="nav-link">Itoophiyaa</a>
+                <a onclick="filterByMenu('Afrikaa')" class="nav-link">Afrikaa</a>
+                <a onclick="filterByMenu('Addunyaa')" class="nav-link">Addunyaa</a>
+                <a onclick="filterByMenu('Tajaajila')" class="nav-link">Tajaajila</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="showAdmin()" class="text-gray-300 hover:text-red-700 transition text-sm"><i class="fas fa-user-shield"></i></button>
             </div>
         </div>
     </nav>
 
-    <div id="mobile-menu" class="fixed inset-0 bg-black/95 z-[3000] lg:hidden flex flex-col p-8 text-white">
-        <button onclick="toggleMenu()" class="self-end text-3xl mb-8">&times;</button>
-        <div class="flex flex-col space-y-6 text-xl font-bold uppercase">
-            <a onclick="loadContent(); toggleMenu()">Oduu</a>
-            <a onclick="filterByMenu('Oromiyaa'); toggleMenu()">Oromiyaa</a>
+    <div id="mobile-menu" class="fixed inset-0 bg-black/95 z-[3000] lg:hidden flex flex-col p-10 text-white">
+        <div class="flex justify-between items-center mb-12">
+            <img src="Logo.PNG" class="h-10 bg-white p-1 rounded">
+            <button onclick="toggleMenu()" class="text-4xl">&times;</button>
+        </div>
+        <div class="flex flex-col space-y-8 text-2xl font-black uppercase italic">
+            <a onclick="loadContent(); toggleMenu()">Oduu Ammee</a>
             <a onclick="filterByMenu('Tajaajila'); toggleMenu()">Tajaajila</a>
-            <hr class="opacity-20">
-            <div class="flex flex-col gap-4">
-                <button class="w-full py-3 bg-red-700 rounded">Sign In</button>
-                <button class="w-full py-3 border border-white rounded">Sign Up</button>
+            <a onclick="filterByMenu('Oromiyaa'); toggleMenu()">Oromiyaa</a>
+            <div class="pt-10 flex flex-col gap-4">
+                <button onclick="openAuth(false); toggleMenu()" class="w-full py-4 bg-red-700 rounded-lg text-lg uppercase">Sign In</button>
+                <button onclick="openAuth(true); toggleMenu()" class="w-full py-4 border-2 border-white rounded-lg text-lg uppercase">Sign Up</button>
             </div>
         </div>
     </div>
 
-    <main class="main-wrapper py-8">
-        <section id="hero-section" class="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-16">
+    <main class="main-wrapper py-10">
+        
+        <section id="hero-section" class="grid grid-cols-1 lg:grid-cols-4 gap-10 mb-20">
             <div class="lg:col-span-3">
-                <div id="hero-area" class="cursor-pointer group border-b-2 border-gray-100 pb-10">
-                    <div class="overflow-hidden aspect-video mb-6 bg-gray-100">
-                        <img id="hero-img" src="https://via.placeholder.com/800x450?text=Media+Loading..." class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+                <div id="hero-area" class="relative cursor-pointer group overflow-hidden rounded-sm bg-gray-100 aspect-video">
+                    <img id="hero-img" src="" class="w-full h-full object-cover group-hover:scale-105 transition duration-1000">
+                    <div class="absolute inset-0 hero-gradient flex flex-col justify-end p-6 md:p-10 text-white">
+                        <span id="hero-cat" class="bg-red-700 self-start px-3 py-1 text-[10px] font-black uppercase mb-4 tracking-tighter">Oduu Ammee</span>
+                        <h2 id="hero-title" class="text-2xl md:text-5xl font-black italic leading-tight group-hover:text-red-400 transition">Odeeffannoon fe'amaa jira...</h2>
+                        <p id="hero-desc" class="text-gray-300 mt-4 text-sm md:text-lg line-clamp-2 max-w-2xl font-light">Loading content from Deebii Tech database...</p>
                     </div>
-                    <span id="hero-cat" class="text-red-700 font-extrabold text-[10px] uppercase tracking-widest">Oduu Ammee</span>
-                    <h2 id="hero-title" class="text-3xl md:text-4xl font-black text-gray-900 mt-2 group-hover:underline leading-tight italic">Odeeffannoon fe'amaa jira...</h2>
-                    <p id="hero-desc" class="text-gray-600 mt-4 text-lg line-clamp-3 leading-relaxed">Xiqqumme eegaa...</p>
                 </div>
             </div>
-            <div class="lg:col-span-1 border-l pl-6 border-gray-50">
-                <h3 class="text-red-700 font-bold border-b-2 border-red-700 pb-2 mb-6 uppercase text-xs">Waan Dubbifaman</h3>
-                <div id="side-news" class="space-y-6 text-sm font-bold text-black"></div>
+            <div class="lg:col-span-1 border-l-2 border-gray-50 pl-6">
+                <h3 class="text-red-700 font-black border-b-4 border-red-700 pb-2 mb-8 uppercase text-xs italic tracking-widest">Waan Dubbifaman</h3>
+                <div id="side-news" class="space-y-8">
+                    </div>
             </div>
         </section>
 
-        <section class="bg-gray-900 text-white p-8 rounded-sm mb-20 flex flex-col md:flex-row items-center justify-between gap-6 border-l-8 border-red-700">
-            <div>
-                <h2 class="text-2xl font-black uppercase">Subscribe to News</h2>
-                <p class="text-gray-400 text-sm italic">Odeeffannoo haaraa yeroon akka isiniin gahuuf galmaa'aa.</p>
+        <section class="bg-slate-900 text-white p-10 rounded-sm mb-24 flex flex-col lg:flex-row items-center justify-between gap-10 border-l-[12px] border-red-700 shadow-2xl">
+            <div class="text-center lg:text-left">
+                <h2 class="text-3xl font-black uppercase italic leading-none">Subscribe</h2>
+                <p class="text-gray-400 mt-2 text-sm">Odeeffannoo haaraa fi tajaajiloota keenya Email keessaniin argadhaa.</p>
             </div>
-            <div class="flex w-full md:w-auto">
-                <input type="email" placeholder="Email keessan..." class="p-3 bg-white/10 border border-white/20 outline-none w-full md:w-64 text-sm">
-                <button class="bbc-red px-6 font-bold text-xs uppercase">Join</button>
-            </div>
+            <form id="subscribe-form" class="flex w-full lg:w-auto shadow-lg">
+                <input type="email" id="sub-email" placeholder="Email keessan asitti galchaa..." class="p-4 bg-white/5 border border-white/10 outline-none w-full lg:w-80 text-sm focus:bg-white focus:text-black transition-all" required>
+                <button type="submit" class="bbc-red px-8 font-black uppercase text-xs hover:bg-red-800 transition">Hordofi</button>
+            </form>
         </section>
 
-        <section id="services-section" class="mb-20">
-            <h2 class="text-xl font-black border-l-8 border-red-700 pl-4 mb-8 uppercase italic">Services</h2>
-            <div id="services-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+        <section id="services-section" class="mb-24">
+            <div class="flex items-center gap-4 mb-12">
+                <h2 class="text-2xl font-black border-l-8 border-red-700 pl-4 uppercase italic">Tajaajila Keenya</h2>
+                <div class="flex-grow h-px bg-gray-100"></div>
+            </div>
+            <div id="services-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                </div>
         </section>
 
-        <section id="news-grid-area" class="mb-20">
-            <h2 id="grid-title" class="text-xl font-black border-b-4 border-red-700 inline-block mb-10 uppercase">Taateewwan Ammee</h2>
-            <section id="news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></section>
+        <section id="news-grid-area" class="mb-24">
+            <div class="flex items-center justify-between mb-12">
+                <h2 id="grid-title" class="text-2xl font-black border-b-4 border-red-700 uppercase italic">Oduuwwan Haaraa</h2>
+                <span class="text-[10px] font-bold text-gray-400">DEEBII TECH &copy; 2026</span>
+            </div>
+            <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                </div>
         </section>
+
+        <section class="max-w-3xl mx-auto bg-gray-50 p-10 border-2 border-dashed border-gray-200 mb-20">
+            <h2 class="text-xl font-black mb-6 uppercase text-center italic border-b-2 border-red-700 inline-block">Yaada Nuuf Ergaa</h2>
+            <form id="feedback-form" class="space-y-4 mt-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" id="fb-name" placeholder="Maqaa Keessan" class="p-3 border outline-none focus:border-red-700 text-sm font-bold" required>
+                    <input type="email" id="fb-email" placeholder="Email" class="p-3 border outline-none focus:border-red-700 text-sm font-bold" required>
+                </div>
+                <textarea id="fb-msg" rows="4" placeholder="Ergaa keessan asitti barreessaa..." class="w-full p-3 border outline-none focus:border-red-700 text-sm font-bold" required></textarea>
+                <button type="submit" id="fb-btn" class="w-full bbc-red text-white py-3 font-black uppercase hover:shadow-lg transition">Ergaa Ergi</button>
+            </form>
+        </section>
+
     </main>
 
-    <div class="full-width bbc-red text-white py-4 shadow-inner border-t border-white/10 mt-10">
-        <div class="main-wrapper flex justify-between items-center">
+    <div class="full-width bbc-red text-white py-6 shadow-inner border-t border-white/20">
+        <div class="main-wrapper flex flex-col md:flex-row justify-between items-center gap-6">
             <div class="flex items-center gap-4">
-                <img src="Logo.PNG" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Deebii+Tech&background=white&color=B80000&size=128'" class="h-10 md:h-12 rounded shadow-sm">
-                <div class="h-8 w-px bg-white/30 hidden md:block"></div>
-                <h2 class="text-xl md:text-2xl font-black uppercase tracking-tighter">Deebii Tech & Media Solutions</h2>
+                <img src="Logo.PNG" onerror="this.src='https://ui-avatars.com/api/?name=Deebii+Tech&background=white&color=B80000'" class="h-12 bg-white p-1 rounded shadow-lg">
+                <h2 class="text-2xl font-black uppercase tracking-tighter italic">Deebii Tech & Media Solutions</h2>
             </div>
-            <div class="hidden md:flex gap-4 opacity-70 text-sm">
-                <span><i class="fas fa-check-circle"></i> Quality</span>
-                <span><i class="fas fa-bolt"></i> Speed</span>
+            <div class="flex gap-8 text-[10px] font-black uppercase opacity-80">
+                <span><i class="fas fa-certificate mr-2"></i> Quality First</span>
+                <span><i class="fas fa-globe mr-2"></i> Global Reach</span>
+                <span><i class="fas fa-shield-alt mr-2"></i> Secured</span>
             </div>
         </div>
     </div>
 
-    <footer class="full-width footer-luxury text-white pt-16 pb-8">
+    <footer class="full-width footer-luxury text-white pt-20 pb-10 overflow-hidden">
         <div class="main-wrapper">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 border-b border-white/10 pb-12 mb-8 text-xs">
-                <div>
-                    <h4 class="text-red-500 font-black uppercase mb-6 tracking-widest">Informations</h4>
-                    <div class="space-y-3 text-gray-400">
-                        <p><strong>About:</strong> Deebii Tech & Media Solutions gabaasa amanamummaa qabuufi tajaajila teeknoolojii ammayyaa irratti hojjeta.</p>
-                        <p><strong>Help:</strong> 0910166955 irratti nu qunnamaa.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-16 border-b border-white/10 pb-16 mb-10">
+                <div class="space-y-6">
+                    <h4 class="text-red-500 font-black uppercase tracking-[0.3em] text-sm">Informations</h4>
+                    <p class="text-gray-400 text-xs leading-relaxed">Deebii Tech & Media Solutions gabaasa amanamummaa qabuufi tajaajila teeknoolojii ammayyaa (Graphics, Web, Video Editing) irratti dhaloota haaraaf hojjeta.</p>
+                    <div class="flex items-center gap-4 text-xs font-bold">
+                        <i class="fas fa-phone-alt text-red-600"></i>
+                        <span>+251 910 166 955</span>
                     </div>
                 </div>
+
                 <div>
-                    <h4 class="text-red-500 font-black uppercase mb-6 tracking-widest">Connect</h4>
-                    <div class="grid grid-cols-4 gap-y-6 gap-x-2 text-2xl text-gray-400">
-                        <a href="https://web.facebook.com/qajeelaahambisaamoosisaa/" target="_blank" class="hover:text-[#1877F2]"><i class="fab fa-facebook"></i></a>
-                        <a href="https://www.linkedin.com/in/kajela-hambisa-434ab4257/" target="_blank" class="hover:text-[#0A66C2]"><i class="fab fa-linkedin"></i></a>
-                        <a href="https://wa.me/251910166955" target="_blank" class="hover:text-[#25D366]"><i class="fab fa-whatsapp"></i></a>
-                        <a href="https://www.tiktok.com/@qajeelaa430" target="_blank" class="hover:text-white"><i class="fab fa-tiktok"></i></a>
-                        <a href="https://t.me/Qajeelaa04" target="_blank" class="hover:text-[#26A5E4]"><i class="fab fa-telegram"></i></a>
-                        <a href="https://www.youtube.com/@Qajela-tube" target="_blank" class="hover:text-[#FF0000]"><i class="fab fa-youtube"></i></a>
+                    <h4 class="text-red-500 font-black uppercase tracking-[0.3em] text-sm mb-8">Social Connect</h4>
+                    <div class="grid grid-cols-4 gap-6">
+                        <a href="https://web.facebook.com/qajeelaahambisaamoosisaa/" target="_blank" class="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-[#1877F2] transition hover:scale-110"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://t.me/Qajeelaa04" target="_blank" class="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-[#26A5E4] transition hover:scale-110"><i class="fab fa-telegram-plane"></i></a>
+                        <a href="https://wa.me/251910166955" target="_blank" class="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-[#25D366] transition hover:scale-110"><i class="fab fa-whatsapp"></i></a>
+                        <a href="https://www.youtube.com/@Qajela-tube" target="_blank" class="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-[#FF0000] transition hover:scale-110"><i class="fab fa-youtube"></i></a>
+                        <a href="https://www.tiktok.com/@qajeelaa430" target="_blank" class="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-black border border-white/20 transition hover:scale-110"><i class="fab fa-tiktok"></i></a>
+                        <a href="https://www.linkedin.com/in/kajela-hambisa-434ab4257/" target="_blank" class="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-[#0A66C2] transition hover:scale-110"><i class="fab fa-linkedin-in"></i></a>
                     </div>
                 </div>
-                <div class="md:text-right flex flex-col items-center md:items-end">
-                    <img src="kajela.JPG" onerror="this.src='https://ui-avatars.com/api/?name=Kajela+Hambisa&background=B80000&color=fff'" alt="Kajela" class="w-20 h-20 rounded-full border-2 border-red-700 mb-2 object-cover block">
-                    <p class="text-lg font-black text-yellow-500">Kajela Hambisa</p>
-                    <p class="text-white font-bold text-[10px]">DEVELOPER: 0910166955</p>
+
+                <div class="md:text-right flex flex-col items-center md:items-end group">
+                    <div class="relative mb-4">
+                        <img src="kajela.JPG" onerror="this.src='https://ui-avatars.com/api/?name=Kajela+Hambisa&background=B80000&color=fff'" class="w-24 h-24 rounded-full border-4 border-red-700 object-cover shadow-2xl group-hover:rotate-6 transition duration-500">
+                        <div class="absolute -bottom-2 -right-2 bg-green-500 w-5 h-5 rounded-full border-4 border-black"></div>
+                    </div>
+                    <p class="text-xl font-black text-yellow-500 italic">Kajela Hambisa</p>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Founder & Full-stack Developer</p>
                 </div>
             </div>
-            <p class="text-center text-[9px] text-gray-600 uppercase tracking-[0.5em] font-bold">&copy; 2026 DEEBII TECH & MEDIA SOLUTIONS</p>
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 opacity-40 text-[9px] font-black uppercase tracking-[0.4em]">
+                <p>&copy; 2026 DEEBII TECH & MEDIA SOLUTIONS. ALL RIGHTS RESERVED.</p>
+                <p>Designed by Kajela</p>
+            </div>
         </div>
     </footer>
 
     <div id="admin-modal" class="modal">
-        <div class="bg-white p-8 max-w-xl w-full rounded shadow-2xl mx-4">
-            <h2 class="text-xl font-black mb-6 border-b-4 border-red-700 pb-2 italic uppercase text-black">Add New Content</h2>
+        <div class="bg-white p-8 max-w-xl w-full rounded-sm shadow-2xl mx-4 animate-scale-in">
+            <h2 class="text-2xl font-black mb-6 border-b-8 border-red-700 pb-2 italic uppercase text-black">Upload New Work</h2>
             <form id="post-form" class="space-y-4 text-black">
-                <input type="text" id="post-title" placeholder="Mata-duree" class="w-full border-2 p-3 rounded font-bold outline-none bg-gray-50 focus:border-red-700" required>
+                <input type="text" id="post-title" placeholder="Mata-duree (Title)" class="w-full border-2 p-4 font-bold bg-gray-50 outline-none focus:border-red-700" required>
                 <div class="grid grid-cols-2 gap-4">
-                    <select id="post-type" class="border-2 p-3 font-bold bg-gray-50" onchange="updateSubCats()">
-                        <option value="News">Oduu</option>
-                        <option value="Event">Taatee</option>
+                    <select id="post-type" class="border-2 p-4 font-bold bg-gray-50 appearance-none" onchange="updateSubCats()">
+                        <option value="News">Oduu (News)</option>
                         <option value="Tajaajila">Tajaajila (Service)</option>
                     </select>
-                    <select id="post-category" class="border-2 p-3 font-bold bg-gray-50"></select>
+                    <select id="post-category" class="border-2 p-4 font-bold bg-gray-50 appearance-none"></select>
                 </div>
-                <div class="bg-gray-50 p-3 border-2 border-dashed">
-                    <p class="text-[10px] font-bold mb-2 uppercase">Suuraa Filadhu:</p>
-                    <input type="file" id="post-image-file" class="text-xs mb-2" accept="image/*" required>
+                <div class="border-2 border-dashed p-4 text-center hover:bg-gray-50 transition cursor-pointer relative">
+                    <p class="text-[10px] font-black uppercase text-gray-400">Fayiila Suuraa Filadhu</p>
+                    <input type="file" id="post-image-file" class="mt-2 text-xs" accept="image/*" required>
                 </div>
-                <textarea id="post-content" rows="4" placeholder="Qabiyyee..." class="w-full border-2 p-3 outline-none bg-gray-50 focus:border-red-700" required></textarea>
-                <div class="flex gap-4">
-                    <button type="submit" id="sub-btn" class="flex-grow bbc-red text-white py-3 font-black">PUBLISH</button>
-                    <button type="button" onclick="closeAdmin()" class="bg-gray-200 px-8 font-black">CANCEL</button>
+                <textarea id="post-content" rows="5" placeholder="Qabiyyee guutuu asitti barreessaa..." class="w-full border-2 p-4 outline-none bg-gray-50 focus:border-red-700" required></textarea>
+                <div class="flex gap-4 pt-4">
+                    <button type="submit" id="sub-btn" class="flex-grow bbc-red text-white py-4 font-black uppercase hover:bg-red-900 transition shadow-lg">Publish Now</button>
+                    <button type="button" onclick="closeAdmin()" class="bg-gray-200 px-10 font-black uppercase text-xs">Dhiisi</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="article-modal" class="fixed inset-0 bg-white z-[6000] hidden overflow-y-auto">
-        <div class="full-width bbc-red p-4 sticky top-0 flex justify-between items-center text-white shadow-md">
-            <button onclick="closeArticle()" class="font-black flex items-center gap-2"><i class="fas fa-chevron-left"></i> BACK</button>
-            <span class="font-black uppercase italic tracking-tighter text-xs">Deebii Tech & Media</span>
+    <div id="auth-modal" class="modal">
+        <div class="bg-white p-10 max-w-md w-full rounded-sm shadow-2xl mx-4">
+            <div class="flex justify-between items-center mb-8 border-b-4 border-red-700 pb-2">
+                <h2 id="auth-title" class="text-2xl font-black uppercase italic text-black">Sign Up</h2>
+                <button onclick="closeAuth()" class="text-gray-400 hover:text-black">&times;</button>
+            </div>
+            <div class="space-y-5">
+                <div class="relative">
+                    <i class="fas fa-envelope absolute left-4 top-4 text-gray-300"></i>
+                    <input type="email" id="auth-email" placeholder="Email Keessan" class="w-full border-2 p-4 pl-12 font-bold outline-none focus:border-red-700 bg-gray-50 text-black">
+                </div>
+                <div class="relative">
+                    <i class="fas fa-lock absolute left-4 top-4 text-gray-300"></i>
+                    <input type="password" id="auth-password" placeholder="Password (6+)" class="w-full border-2 p-4 pl-12 font-bold outline-none focus:border-red-700 bg-gray-50 text-black">
+                </div>
+                
+                <button onclick="handleAuth()" id="main-auth-btn" class="w-full bbc-red text-white py-4 font-black uppercase hover:bg-red-800 transition shadow-xl">Create Account</button>
+                
+                <div class="flex items-center gap-4 py-2">
+                    <div class="flex-grow h-px bg-gray-200"></div>
+                    <span class="text-[10px] font-black text-gray-400">YOKAN</span>
+                    <div class="flex-grow h-px bg-gray-200"></div>
+                </div>
+
+                <button onclick="signInWithGoogle()" class="w-full border-2 border-gray-100 p-4 font-bold flex items-center justify-center gap-3 hover:bg-gray-50 transition text-black">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5">
+                    Google-iin Seeni
+                </button>
+
+                <p class="text-center text-xs font-bold text-gray-500 pt-4">
+                    <span id="auth-toggle-text">Account qabduu?</span> 
+                    <button onclick="toggleAuthMode()" id="auth-toggle-btn" class="text-red-700 font-black underline ml-1">SIGN IN</button>
+                </p>
+            </div>
         </div>
-        <div class="main-wrapper py-12">
-            <h1 id="art-title" class="text-3xl md:text-5xl font-black text-gray-900 mb-8 italic leading-tight text-justify"></h1>
-            <img id="art-img" src="" class="w-full h-auto mb-10 shadow-xl rounded-sm">
-            <div id="art-content" class="text-xl leading-relaxed whitespace-pre-wrap text-gray-800 font-serif text-justify"></div>
-            <button onclick="deleteCurrentArticle()" id="del-btn-art" class="mt-12 text-red-600 font-bold text-xs uppercase border border-red-200 p-2 rounded hover:bg-red-50 transition">Haqi (Delete)</button>
+    </div>
+
+    <div id="article-modal" class="fixed inset-0 bg-white z-[6000] hidden overflow-y-auto">
+        <div class="full-width bbc-red p-5 sticky top-0 flex justify-between items-center text-white shadow-xl">
+            <button onclick="closeArticle()" class="font-black flex items-center gap-3 bg-white/10 px-4 py-2 rounded uppercase text-xs hover:bg-white/20"><i class="fas fa-arrow-left"></i> Deebi'i</button>
+            <div class="flex items-center gap-2">
+                <img src="Logo.PNG" class="h-6 bg-white p-0.5 rounded">
+                <span class="font-black uppercase italic tracking-tighter text-sm">Deebii Media</span>
+            </div>
+        </div>
+        <div class="main-wrapper py-16">
+            <div class="max-w-4xl mx-auto">
+                <h1 id="art-title" class="text-3xl md:text-6xl font-black text-gray-900 mb-10 italic leading-[1.1] text-justify"></h1>
+                <div class="mb-12 relative">
+                    <img id="art-img" src="" class="w-full h-auto shadow-2xl rounded-sm">
+                    <div class="absolute top-4 left-4 bg-red-700 text-white px-4 py-1 font-black text-[10px] uppercase italic">Official Post</div>
+                </div>
+                <div id="art-content" class="text-xl md:text-2xl leading-[1.8] whitespace-pre-wrap text-gray-800 font-serif text-justify mb-20"></div>
+                
+                <div id="admin-only-delete" class="hidden border-t pt-10">
+                    <button onclick="deleteCurrentArticle()" class="text-red-600 font-black text-[11px] uppercase border-2 border-red-100 px-6 py-2 hover:bg-red-50 transition">Haqi (Delete Article)</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
+        // 1. Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyA4PdrEH0NAuIWyvl0mP2M3g_L7qNPu8I4",
             authDomain: "deebii-tech-haaraa.firebaseapp.com",
@@ -220,33 +309,95 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
 
         let currentOpenId = null;
+        let isSignUpMode = true;
+        let allPosts = [];
 
+        // 2. Auth Functions
         function toggleMenu() { document.getElementById('mobile-menu').classList.toggle('active'); }
+        
+        function openAuth(signup = true) {
+            isSignUpMode = signup;
+            document.getElementById('auth-modal').style.display = 'flex';
+            updateAuthUI();
+        }
+        
+        function closeAuth() { document.getElementById('auth-modal').style.display = 'none'; }
+        
+        function toggleAuthMode() {
+            isSignUpMode = !isSignUpMode;
+            updateAuthUI();
+        }
+
+        function updateAuthUI() {
+            document.getElementById('auth-title').innerText = isSignUpMode ? "Sign Up" : "Sign In";
+            document.getElementById('main-auth-btn').innerText = isSignUpMode ? "Create Account" : "Sign In Now";
+            document.getElementById('auth-toggle-text').innerText = isSignUpMode ? "Account qabduu?" : "Account hin qabduu?";
+            document.getElementById('auth-toggle-btn').innerText = isSignUpMode ? "SIGN IN" : "SIGN UP";
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            if (password.length < 6) { alert("Password qubee 6 gadi ta'uu hin qabu!"); return; }
+            
+            try {
+                if (isSignUpMode) {
+                    const res = await auth.createUserWithEmailAndPassword(email, password);
+                    await db.collection('users').doc(res.user.uid).set({ email, createdAt: new Date(), role: 'user' });
+                    alert("Baga nagaan dhuftan!, Gammachuun isin simanneerra.");
+                } else {
+                    await auth.signInWithEmailAndPassword(email, password);
+                }
+                closeAuth();
+            } catch (err) { alert(err.message); }
+        }
+
+        async function signInWithGoogle() {
+            try {
+                const res = await auth.signInWithPopup(provider);
+                await db.collection('users').doc(res.user.uid).set({ 
+                    email: res.user.email, 
+                    name: res.user.displayName, 
+                    photo: res.user.photoURL,
+                    lastLogin: new Date()
+                }, {merge:true});
+                closeAuth();
+            } catch (err) { alert(err.message); }
+        }
+
+        auth.onAuthStateChanged(user => {
+            const headerBtns = document.getElementById('auth-header-btns');
+            if (user) {
+                const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
+                headerBtns.innerHTML = `<button onclick="auth.signOut()" class="px-4 py-1.5 bg-black/30 text-white rounded-sm text-[10px] font-black uppercase border border-white/20">Logout (${name})</button>`;
+                if(user.email === "kajela@admin.com") document.getElementById('admin-only-delete').classList.remove('hidden');
+            } else {
+                headerBtns.innerHTML = `
+                    <button onclick="openAuth(false)" class="px-4 py-1.5 bg-white text-red-800 rounded-sm text-[11px] font-black uppercase shadow-sm">Sign In</button>
+                    <button onclick="openAuth(true)" class="px-4 py-1.5 border-2 border-white text-white rounded-sm text-[11px] font-black uppercase hover:bg-white hover:text-red-800 transition">Sign Up</button>
+                `;
+            }
+        });
+
+        // 3. Admin & Content Management
         function showAdmin() {
-    // Password kana si qofatu beeka. 
-    // Qubee guddaa, xiqqaafi mallattoo fayyadamuun hack gochuun akka rakkisu godha.
-    const secretPass = "Deebii@Admin#2026"; 
-    const userPrompt = prompt("Sussubii Galchi (Admin Password):");
-
-    if (userPrompt === secretPass) {
-        document.getElementById('admin-modal').style.display = 'flex';
-    } else if (userPrompt !== null) {
-        alert("Dogoggora! Password sirrii miti.");
-    }
-}
-        function closeAdmin() { document.getElementById('admin-modal').style.display='none'; }
-        function closeArticle() { document.getElementById('article-modal').classList.add('hidden'); document.body.style.overflow='auto'; }
-
+            const secretPass = "Deebii@Admin#2026";
+            const userPrompt = prompt("Sussubii Galchi (Admin Password):");
+            if (userPrompt === secretPass) document.getElementById('admin-modal').style.display = 'flex';
+            else if (userPrompt) alert("Password sirrii miti!");
+        }
+        
+        function closeAdmin() { document.getElementById('admin-modal').style.display = 'none'; }
+        
         function updateSubCats() {
             const type = document.getElementById('post-type').value;
             const cat = document.getElementById('post-category');
             cat.innerHTML = '';
-            let cats = [];
-            if(type === "News") cats = ["Biyya Keessaa", "Ispoortii", "Business"];
-            else if(type === "Event") cats = ["Oromiyaa", "Itoophiyaa", "Afrikaa", "Addunyaa"];
-            else if(type === "Tajaajila") cats = ["Graphics Design", "Video Editing", "Logo & Branding", "Social Media", "Web Dev"];
+            let cats = (type === "News") ? ["Oromiyaa", "Itoophiyaa", "Afrikaa", "Addunyaa", "Ispoortii"] : ["Graphics Design", "Video Editing", "Logo & Branding", "Web Dev"];
             cats.forEach(c => cat.innerHTML += `<option value="${c}">${c}</option>`);
         }
         updateSubCats();
@@ -256,12 +407,11 @@
             const btn = document.getElementById('sub-btn');
             const file = document.getElementById('post-image-file').files[0];
             btn.innerText = "UPLOADING..."; btn.disabled = true;
-
+            
             try {
-                const API_KEY = "ac756c87073f6c0789cd4073295cc84a";
                 const formData = new FormData();
                 formData.append("image", file);
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, { method: "POST", body: formData });
+                const res = await fetch(`https://api.imgbb.com/1/upload?key=ac756c87073f6c0789cd4073295cc84a`, { method: "POST", body: formData });
                 const data = await res.json();
                 
                 await db.collection('posts').add({
@@ -272,29 +422,39 @@
                     image: data.data.url,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                alert("Milkaa'inaan Maxxanfameera!"); location.reload();
-            } catch(err) { alert("Error: " + err.message); btn.innerText = "PUBLISH"; btn.disabled = false; }
+                alert("Milkaa'inaan Maxxanfameera!");
+                location.reload();
+            } catch(err) { alert(err.message); btn.innerText = "PUBLISH"; btn.disabled = false; }
         };
 
+        // 4. Data Loading & Filtering
         async function loadContent() {
             document.getElementById('hero-section').style.display = 'grid';
             document.getElementById('services-section').style.display = 'block';
-            document.getElementById('grid-title').innerText = "Taateewwan Ammee";
+            document.getElementById('grid-title').innerText = "Oduuwwan Haaraa";
+            
+            const snap = await db.collection('posts').orderBy('timestamp','desc').get();
+            allPosts = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderPosts(allPosts);
+        }
+
+        function renderPosts(posts) {
             const grid = document.getElementById('news-grid');
             const side = document.getElementById('side-news');
-            const servGrid = document.getElementById('services-grid');
-            const snap = await db.collection('posts').orderBy('timestamp','desc').get();
-            if(snap.empty) return;
-            grid.innerHTML = ""; side.innerHTML = ""; servGrid.innerHTML = "";
+            const serv = document.getElementById('services-grid');
+            
+            grid.innerHTML = ""; side.innerHTML = ""; serv.innerHTML = "";
             let newsCount = 0;
-            snap.docs.forEach((doc) => {
-                const p = doc.data();
+
+            posts.forEach((p, index) => {
                 if(p.type === "Tajaajila") {
-                    servGrid.innerHTML += `
-                        <div class="bg-gray-50 p-6 border-t-4 border-red-700 shadow-sm cursor-pointer hover:bg-gray-100 transition" onclick="openArt('${doc.id}')">
-                            <img src="${p.image}" class="w-12 h-12 mb-4 object-cover rounded shadow">
-                            <h4 class="font-bold mb-2 text-black">${p.title}</h4>
-                            <p class="text-xs text-gray-500 line-clamp-2">${p.content}</p>
+                    serv.innerHTML += `
+                        <div onclick="openArt('${p.id}')" class="group bg-white p-8 border-b-4 border-gray-100 hover:border-red-700 shadow-sm cursor-pointer transition-all duration-300 hover:-translate-y-2">
+                            <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-6 group-hover:bg-red-700 transition">
+                                <img src="${p.image}" class="w-8 h-8 object-contain group-hover:invert transition">
+                            </div>
+                            <h4 class="font-black text-lg mb-3 uppercase italic tracking-tighter">${p.title}</h4>
+                            <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed font-bold italic">${p.content}</p>
                         </div>`;
                 } else {
                     if(newsCount === 0) {
@@ -302,16 +462,24 @@
                         document.getElementById('hero-title').innerText = p.title;
                         document.getElementById('hero-cat').innerText = p.category;
                         document.getElementById('hero-desc').innerText = p.content;
-                        document.getElementById('hero-area').onclick = () => openArt(doc.id);
+                        document.getElementById('hero-area').onclick = () => openArt(p.id);
                     } else if(newsCount < 6) {
-                        side.innerHTML += `<div class="cursor-pointer hover:text-red-700 border-b pb-3 mb-2" onclick="openArt('${doc.id}')">${p.title}</div>`;
+                        side.innerHTML += `
+                            <div class="cursor-pointer group flex flex-col" onclick="openArt('${p.id}')">
+                                <span class="text-red-700 text-[8px] font-black uppercase mb-1">${p.category}</span>
+                                <h4 class="text-sm font-black group-hover:text-red-700 transition leading-snug">${p.title}</h4>
+                                <div class="h-px bg-gray-50 mt-4"></div>
+                            </div>`;
                     }
                     if(newsCount > 0) {
                         grid.innerHTML += `
-                            <div class="cursor-pointer group border-b pb-6" onclick="openArt('${doc.id}')">
-                                <div class="h-44 overflow-hidden mb-3 bg-gray-100"><img src="${p.image}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500"></div>
-                                <span class="text-red-700 text-[9px] font-black uppercase tracking-widest">${p.category}</span>
-                                <h3 class="font-bold text-lg text-gray-900 group-hover:underline mt-1 line-clamp-2">${p.title}</h3>
+                            <div class="cursor-pointer group flex flex-col" onclick="openArt('${p.id}')">
+                                <div class="relative overflow-hidden aspect-video mb-4 bg-gray-100">
+                                    <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                                    <div class="absolute top-2 left-2 bg-black text-white px-2 py-0.5 text-[8px] font-black uppercase">${p.category}</div>
+                                </div>
+                                <h3 class="font-black text-xl text-gray-900 group-hover:text-red-700 transition leading-tight italic line-clamp-2">${p.title}</h3>
+                                <p class="text-xs text-gray-500 mt-2 line-clamp-2">${p.content}</p>
                             </div>`;
                     }
                     newsCount++;
@@ -319,70 +487,65 @@
             });
         }
 
-        async function filterByMenu(catName) {
+        async function filterByMenu(cat) {
             document.getElementById('hero-section').style.display = 'none';
             document.getElementById('services-section').style.display = 'none';
-            document.getElementById('grid-title').innerText = catName.toUpperCase();
-            const grid = document.getElementById('news-grid');
-            grid.innerHTML = "<p class='col-span-3 text-center py-10 opacity-50 italic'>Barbaadamaa jira...</p>";
-            let snap;
-            if(catName === "Tajaajila") snap = await db.collection('posts').where('type', '==', 'Tajaajila').get();
-            else snap = await db.collection('posts').where('category', '==', catName).get();
-            grid.innerHTML = "";
-            if(snap.empty) { grid.innerHTML = "<p class='col-span-3 text-center py-20 font-bold text-gray-400'>Maxxansi hin jiru.</p>"; return; }
-            snap.docs.forEach(doc => {
-                const p = doc.data();
-                grid.innerHTML += `
-                    <div class="cursor-pointer group border-b pb-6" onclick="openArt('${doc.id}')">
-                        <div class="h-44 overflow-hidden mb-3 bg-gray-100"><img src="${p.image}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500"></div>
-                        <span class="text-red-700 text-[9px] font-black uppercase tracking-widest">${p.category}</span>
-                        <h3 class="font-bold text-lg text-gray-900 group-hover:underline mt-1 line-clamp-2">${p.title}</h3>
-                    </div>`;
-            });
+            document.getElementById('grid-title').innerText = cat;
+            const filtered = (cat === "Tajaajila") ? allPosts.filter(p => p.type === "Tajaajila") : allPosts.filter(p => p.category === cat);
+            renderPosts(filtered);
+            window.scrollTo(0,0);
+        }
+
+        function searchPosts() {
+            const term = document.getElementById('search-input').value.toLowerCase();
+            const filtered = allPosts.filter(p => p.title.toLowerCase().includes(term) || p.content.toLowerCase().includes(term));
+            renderPosts(filtered);
         }
 
         async function openArt(id) {
             currentOpenId = id;
-            const doc = await db.collection('posts').doc(id).get();
-            const p = doc.data();
-            document.getElementById('art-title').innerText = p.title;
-            document.getElementById('art-img').src = p.image;
-            document.getElementById('art-content').innerText = p.content;
+            const post = allPosts.find(p => p.id === id);
+            if(!post) return;
+            document.getElementById('art-title').innerText = post.title;
+            document.getElementById('art-img').src = post.image;
+            document.getElementById('art-content').innerText = post.content;
             document.getElementById('article-modal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             window.scrollTo(0,0);
         }
 
+        function closeArticle() { document.getElementById('article-modal').classList.add('hidden'); document.body.style.overflow='auto'; }
+
         async function deleteCurrentArticle() {
-            if(confirm("Haqamu?") && currentOpenId) {
+            if(confirm("Dhimmi kun akka haqamu ni barbaadduu?") && currentOpenId) {
                 await db.collection('posts').doc(currentOpenId).delete();
                 location.reload();
             }
         }
-        window.onload = loadContent;
+
+        // 5. Forms Handling
         document.getElementById('feedback-form').onsubmit = async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById('fb-btn');
-    btn.innerText = "ERGAMAALEE JIRA...";
-    
-    try {
-        await db.collection('messages').add({
-            name: document.getElementById('fb-name').value,
-            email: document.getElementById('fb-email').value,
-            message: document.getElementById('fb-msg').value,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        alert("Yaada keessaniif galatoomaa!");
-        document.getElementById('feedback-form').reset();
-    } catch(err) {
-        alert("Dogoggora: " + err.message);
-    } finally {
-        btn.innerText = "ERGAA ERGI";
-    }
-};
+            e.preventDefault();
+            const btn = document.getElementById('fb-btn');
+            btn.innerText = "ERGAMAA JIRA...";
+            try {
+                await db.collection('messages').add({
+                    name: document.getElementById('fb-name').value,
+                    email: document.getElementById('fb-email').value,
+                    message: document.getElementById('fb-msg').value,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("Yaada keessaniif galatoomaa!");
+                e.target.reset();
+            } catch(err) { alert(err.message); }
+            btn.innerText = "ERGAA ERGI";
+        };
+
+        window.onload = loadContent;
     </script>
 </body>
 </html>
+
 
 
 
