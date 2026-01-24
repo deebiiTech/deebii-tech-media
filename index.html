@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deebii Tech & Media Solutions | BBC Style Pro</title>
+    <title>Deebii Tech & Media Solutions</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -16,7 +16,10 @@
         
         body { font-family: 'Open Sans', sans-serif; background-color: #ffffff; margin: 0; padding: 0; overflow-x: hidden; }
         .bbc-red { background-color: #B80000; }
-        .footer-luxury { background: linear-gradient(135deg, #3d1a10 0%, #1a0b06 100%); }
+        /* Halluu duraa (Brown) balleessiitii kana galchi */
+.footer-luxury { 
+    background: linear-gradient(135deg, hwb(12 25% 55%) 0%, #000000 100%); 
+}
         
         .nav-link { color: #202224; font-weight: 700; font-size: 14px; transition: 0.3s; border-bottom: 3px solid transparent; padding: 12px 0; display: inline-block; }
         .nav-link:hover { color: #5D2A18; border-bottom: 3px solid #5D2A18; }
@@ -27,7 +30,12 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 5000; align-items: center; justify-content: center; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-    </style>
+    /* Barreeffama oduu hunda wal-qixa (justified) godha */
+#art-content {
+    text-align: justify;
+    text-justify: inter-word; /* Jechoota gidduutti bakka wal-qixa fageessa */
+}
+    </style>  
 </head>
 <body>
 
@@ -115,33 +123,38 @@
     </div>
 
     <footer class="full-width footer-luxury text-white pt-16 pb-8">
-        <div class="main-wrapper">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 border-b border-white/10 pb-12 mb-8 text-xs">
-                <div>
-                    <h4 class="text-red-500 font-black uppercase mb-6 tracking-widest">Informations</h4>
-                    <div class="space-y-3 text-gray-400">
-                        <p><strong>About:</strong> Deebii Tech & Media Solutions gabaasa amanamummaa qabuufi tajaajila teeknoolojii ammayyaa irratti hojjeta.</p>
-                        <p><strong>Help:</strong> 0910166955</p>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="text-red-500 font-black uppercase mb-6 tracking-widest">Connect</h4>
-                    <div class="grid grid-cols-4 gap-4 text-xl text-gray-400">
-                        <a href="#"><i class="fab fa-facebook hover:text-white"></i></a>
-                        <a href="#"><i class="fab fa-whatsapp hover:text-white"></i></a>
-                        <a href="#"><i class="fab fa-telegram hover:text-white"></i></a>
-                        <a href="#"><i class="fab fa-youtube hover:text-white"></i></a>
-                    </div>
-                </div>
-                <div class="md:text-right flex flex-col items-center md:items-end">
-                    <img src="kajela.jpg" onerror="this.src='https://ui-avatars.com/api/?name=Kajela+Hambisa&background=B80000&color=fff'" class="w-20 h-20 rounded-full border-2 border-red-700 mb-2 object-cover">
-                    <p class="text-gray-500 font-bold uppercase mb-1">Developer</p>
-                    <p class="text-lg font-black text-yellow-500">Kajela Hambisa</p>
+    <div class="main-wrapper">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12 border-b border-white/10 pb-12 mb-8 text-xs">
+            <div>
+                <h4 class="text-red-500 font-black uppercase mb-6 tracking-widest">Informations</h4>
+                <div class="space-y-3 text-gray-400">
+                    <p><strong>About:</strong> Deebii Tech & Media Solutions gabaasa amanamummaa qabuufi tajaajila teeknoolojii ammayyaa irratti hojjeta.</p>
+                    <p><strong>Help:</strong> Tajaajila argachuuf 0910166955 irratti nu qunnamaa.</p>
                 </div>
             </div>
-            <p class="text-center text-[9px] text-gray-600 uppercase tracking-[0.5em] font-bold">&copy; 2026 DEEBII TECH & MEDIA SOLUTIONS</p>
+
+            <div>
+                <h4 class="text-red-500 font-black uppercase mb-6 tracking-widest">Connect</h4>
+                <div class="grid grid-cols-4 gap-y-6 gap-x-2 text-2xl text-gray-400">
+                    <a href="https://web.facebook.com/qajeelaahambisaamoosisaa/" target="_blank" class="hover:text-[#1877F2]"><i class="fab fa-facebook"></i></a>
+                    <a href="https://www.linkedin.com/in/kajela-hambisa-434ab4257/" target="_blank" class="hover:text-[#0A66C2]"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://wa.me/251910166955" target="_blank" class="hover:text-[#25D366]"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://www.tiktok.com/@qajeelaa430" target="_blank" class="hover:text-white"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://t.me/Qajeelaa04" target="_blank" class="hover:text-[#26A5E4]"><i class="fab fa-telegram"></i></a>
+                    <a href="https://www.youtube.com/@Qajela-tube" target="_blank" class="hover:text-[#FF0000]"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+
+            <div class="md:text-right flex flex-col items-center md:items-end">
+                <img src="kajela.jpg" onerror="this.src='https://ui-avatars.com/api/?name=Kajela+Hambisa&background=B80000&color=fff'" class="w-20 h-20 rounded-full border-2 border-red-700 mb-2 object-cover">
+                <p class="text-gray-500 font-bold uppercase mb-1">Developer</p>
+                <p class="text-lg font-black text-yellow-500">Kajela Hambisa</p>
+                <p class="text-white font-bold">0910166955</p>
+            </div>
         </div>
-    </footer>
+        <p class="text-center text-[9px] text-gray-600 uppercase tracking-[0.5em] font-bold">&copy; 2026 DEEBII TECH & MEDIA SOLUTIONS</p>
+    </div>
+</footer>
 
     <div id="admin-modal" class="modal">
         <div class="bg-white p-8 max-w-xl w-full rounded shadow-2xl mx-4">
@@ -169,17 +182,20 @@
     </div>
 
     <div id="article-modal" class="fixed inset-0 bg-white z-[6000] hidden overflow-y-auto">
-        <div class="full-width bbc-red p-4 sticky top-0 flex justify-between items-center text-white">
-            <button onclick="closeArticle()" class="font-black flex items-center gap-2"><i class="fas fa-chevron-left"></i> BACK</button>
-            <span class="font-black uppercase italic">Deebii Tech</span>
-        </div>
-        <div class="main-wrapper py-12">
-            <h1 id="art-title" class="text-3xl md:text-5xl font-black text-gray-900 mb-8 italic leading-tight"></h1>
-            <img id="art-img" src="" class="w-full h-auto mb-10 shadow-xl rounded-sm">
-            <div id="art-content" class="text-xl leading-relaxed whitespace-pre-wrap text-gray-800 font-serif"></div>
-            <button onclick="deleteCurrentArticle()" class="mt-12 text-red-600 font-bold text-xs border p-2">DELETE POST</button>
-        </div>
+    <div class="full-width bbc-red p-4 sticky top-0 flex justify-between items-center text-white shadow-md">
+        <button onclick="closeArticle()" class="font-black flex items-center gap-2"><i class="fas fa-chevron-left"></i> BACK</button>
+        <span class="font-black uppercase italic tracking-tighter">Deebii Tech & Media</span>
     </div>
+
+    <div class="main-wrapper py-12">
+        <h1 id="art-title" class="text-3xl md:text-5xl font-black text-gray-900 mb-8 italic leading-tight"></h1>
+        <img id="art-img" src="" class="w-full h-auto mb-10 shadow-xl rounded-sm">
+        
+        <div id="art-content" class="text-xl leading-relaxed whitespace-pre-wrap text-gray-800 font-serif text-justify"></div>
+        
+        <button onclick="deleteCurrentArticle()" id="del-btn-art" class="mt-12 text-red-600 font-bold text-xs uppercase border border-red-200 p-2 rounded hover:bg-red-50 transition">Haqi (Delete Post)</button>
+    </div>
+</div>
 
     <script>
         // FIREBASE CONFIG
