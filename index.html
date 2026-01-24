@@ -30,28 +30,37 @@
         
         #art-content { text-align: justify; text-justify: inter-word; }
         
-        .loading-shimmer { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-    </style>  
+        /* Hamburger Menu Style */
+        #mobile-menu { transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
+        #mobile-menu.active { transform: translateX(0); }
+    </style>   
 </head>
 <body>
 
-    <header class="full-width bbc-red text-white py-3 shadow-md">
+    <header class="full-width bbc-red text-white py-3 shadow-md relative z-[2000]">
         <div class="main-wrapper flex justify-between items-center">
-            <div class="flex items-center gap-4 cursor-pointer" onclick="location.reload()">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="location.reload()">
                 <img src="Logo.PNG" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Deebii+Tech&background=white&color=B80000&size=128'" alt="Logo" class="h-10 md:h-12 rounded shadow-sm">
                 <div class="h-8 w-px bg-white/30 hidden md:block"></div>
                 <h1 class="text-xl md:text-2xl font-black uppercase tracking-tighter">Deebii Tech & Media</h1>
             </div>
-            <div class="hidden lg:flex items-center bg-white/10 px-4 py-1 rounded border border-white/20">
-                <input type="text" placeholder="Barbaadi..." class="bg-transparent outline-none text-xs text-white w-32">
-                <i class="fas fa-search text-white/50 text-xs"></i>
+            
+            <div class="flex items-center gap-4">
+                <div class="hidden lg:flex items-center bg-white/10 px-4 py-1 rounded border border-white/20">
+                    <input type="text" placeholder="Barbaadi..." class="bg-transparent outline-none text-xs text-white w-32">
+                    <i class="fas fa-search text-white/50 text-xs"></i>
+                </div>
+                <div class="hidden md:flex gap-2 text-[10px] font-bold">
+                    <button class="px-3 py-1 bg-white text-red-700 rounded uppercase">Sign In</button>
+                    <button class="px-3 py-1 border border-white rounded uppercase">Sign Up</button>
+                </div>
+                <button onclick="toggleMenu()" class="lg:hidden text-2xl"><i class="fas fa-bars"></i></button>
             </div>
         </div>
     </header>
 
     <nav class="full-width bg-white border-b sticky top-0 z-[1000] shadow-sm">
-        <div class="main-wrapper">
+        <div class="main-wrapper flex justify-between items-center">
             <div class="flex items-center space-x-8 overflow-x-auto no-scrollbar whitespace-nowrap">
                 <a onclick="loadContent()" class="nav-link uppercase">Oduu</a>
                 <a onclick="filterByMenu('Oromiyaa')" class="nav-link uppercase">Oromiyaa</a>
@@ -63,6 +72,20 @@
             </div>
         </div>
     </nav>
+
+    <div id="mobile-menu" class="fixed inset-0 bg-black/95 z-[3000] lg:hidden flex flex-col p-8 text-white">
+        <button onclick="toggleMenu()" class="self-end text-3xl mb-8">&times;</button>
+        <div class="flex flex-col space-y-6 text-xl font-bold uppercase">
+            <a onclick="loadContent(); toggleMenu()">Oduu</a>
+            <a onclick="filterByMenu('Oromiyaa'); toggleMenu()">Oromiyaa</a>
+            <a onclick="filterByMenu('Tajaajila'); toggleMenu()">Tajaajila</a>
+            <hr class="opacity-20">
+            <div class="flex flex-col gap-4">
+                <button class="w-full py-3 bg-red-700 rounded">Sign In</button>
+                <button class="w-full py-3 border border-white rounded">Sign Up</button>
+            </div>
+        </div>
+    </div>
 
     <main class="main-wrapper py-8">
         <section id="hero-section" class="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-16">
@@ -78,14 +101,24 @@
             </div>
             <div class="lg:col-span-1 border-l pl-6 border-gray-50">
                 <h3 class="text-red-700 font-bold border-b-2 border-red-700 pb-2 mb-6 uppercase text-xs">Waan Dubbifaman</h3>
-                <div id="side-news" class="space-y-6 text-sm font-bold"></div>
+                <div id="side-news" class="space-y-6 text-sm font-bold text-black"></div>
+            </div>
+        </section>
+
+        <section class="bg-gray-900 text-white p-8 rounded-sm mb-20 flex flex-col md:flex-row items-center justify-between gap-6 border-l-8 border-red-700">
+            <div>
+                <h2 class="text-2xl font-black uppercase">Subscribe to News</h2>
+                <p class="text-gray-400 text-sm italic">Odeeffannoo haaraa yeroon akka isiniin gahuuf galmaa'aa.</p>
+            </div>
+            <div class="flex w-full md:w-auto">
+                <input type="email" placeholder="Email keessan..." class="p-3 bg-white/10 border border-white/20 outline-none w-full md:w-64 text-sm">
+                <button class="bbc-red px-6 font-bold text-xs uppercase">Join</button>
             </div>
         </section>
 
         <section id="services-section" class="mb-20">
             <h2 class="text-xl font-black border-l-8 border-red-700 pl-4 mb-8 uppercase italic">Services</h2>
-            <div id="services-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                </div>
+            <div id="services-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
         </section>
 
         <section id="news-grid-area" class="mb-20">
@@ -94,7 +127,7 @@
         </section>
     </main>
 
-    </main> <div class="full-width bbc-red text-white py-3 shadow-inner border-t border-white/10 mt-10">
+    <div class="full-width bbc-red text-white py-4 shadow-inner border-t border-white/10 mt-10">
         <div class="main-wrapper flex justify-between items-center">
             <div class="flex items-center gap-4">
                 <img src="Logo.PNG" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Deebii+Tech&background=white&color=B80000&size=128'" class="h-10 md:h-12 rounded shadow-sm">
@@ -107,7 +140,7 @@
             </div>
         </div>
     </div>
-    <footer class="full-width footer-luxury text-white pt-16 pb-8">
+
     <footer class="full-width footer-luxury text-white pt-16 pb-8">
         <div class="main-wrapper">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12 border-b border-white/10 pb-12 mb-8 text-xs">
@@ -130,7 +163,7 @@
                     </div>
                 </div>
                 <div class="md:text-right flex flex-col items-center md:items-end">
-                    <img src="kajela.jpg" onerror="this.src='https://ui-avatars.com/api/?name=Kajela+Hambisa&background=B80000&color=fff'" class="w-20 h-20 rounded-full border-2 border-red-700 mb-2 object-cover">
+                    <img src="kajela.jpg" onerror="this.src='https://ui-avatars.com/api/?name=Kajela+Hambisa&background=B80000&color=fff'" alt="Kajela" class="w-20 h-20 rounded-full border-2 border-red-700 mb-2 object-cover block">
                     <p class="text-lg font-black text-yellow-500">Kajela Hambisa</p>
                     <p class="text-white font-bold text-[10px]">DEVELOPER: 0910166955</p>
                 </div>
@@ -140,44 +173,38 @@
     </footer>
 
     <div id="admin-modal" class="modal">
-    <div class="bg-white p-8 max-w-xl w-full rounded shadow-2xl mx-4">
-        <h2 class="text-xl font-black mb-6 border-b-4 border-red-700 pb-2 italic uppercase text-black">Add New Content</h2>
-        
-        <form id="post-form" class="space-y-4">
-            <input type="text" id="post-title" placeholder="Mata-duree" 
-                class="w-full border-2 p-3 rounded font-bold outline-none text-black bg-gray-50 focus:border-red-700 placeholder-gray-400" required>
-            
-            <div class="grid grid-cols-2 gap-4">
-                <select id="post-type" class="border-2 p-3 font-bold text-black bg-gray-50 outline-none focus:border-red-700" onchange="updateSubCats()">
-                    <option value="News">Oduu</option>
-                    <option value="Event">Taatee</option>
-                    <option value="Tajaajila">Tajaajila (Service)</option>
-                </select>
-                <select id="post-category" class="border-2 p-3 font-bold text-black bg-gray-50 outline-none focus:border-red-700"></select>
-            </div>
-
-            <div class="bg-gray-50 p-3 border-2 border-dashed border-gray-300">
-                <p class="text-[10px] font-bold mb-2 uppercase text-gray-600">Suuraa Filadhu:</p>
-                <input type="file" id="post-image-file" class="text-xs mb-2 text-black w-full" accept="image/*" required>
-            </div>
-
-            <textarea id="post-content" rows="4" placeholder="Qabiyyee..." 
-                class="w-full border-2 p-3 outline-none text-black bg-gray-50 focus:border-red-700 placeholder-gray-400" required></textarea>
-
-            <div class="flex gap-4 pt-2">
-                <button type="submit" id="sub-btn" class="flex-grow bbc-red text-white py-3 font-black hover:bg-red-800 transition shadow-md">PUBLISH</button>
-                <button type="button" onclick="closeAdmin()" class="bg-gray-200 px-8 font-black text-black hover:bg-gray-300 transition">CANCEL</button>
-            </div>
-        </form>
+        <div class="bg-white p-8 max-w-xl w-full rounded shadow-2xl mx-4">
+            <h2 class="text-xl font-black mb-6 border-b-4 border-red-700 pb-2 italic uppercase text-black">Add New Content</h2>
+            <form id="post-form" class="space-y-4 text-black">
+                <input type="text" id="post-title" placeholder="Mata-duree" class="w-full border-2 p-3 rounded font-bold outline-none bg-gray-50 focus:border-red-700" required>
+                <div class="grid grid-cols-2 gap-4">
+                    <select id="post-type" class="border-2 p-3 font-bold bg-gray-50" onchange="updateSubCats()">
+                        <option value="News">Oduu</option>
+                        <option value="Event">Taatee</option>
+                        <option value="Tajaajila">Tajaajila (Service)</option>
+                    </select>
+                    <select id="post-category" class="border-2 p-3 font-bold bg-gray-50"></select>
+                </div>
+                <div class="bg-gray-50 p-3 border-2 border-dashed">
+                    <p class="text-[10px] font-bold mb-2 uppercase">Suuraa Filadhu:</p>
+                    <input type="file" id="post-image-file" class="text-xs mb-2" accept="image/*" required>
+                </div>
+                <textarea id="post-content" rows="4" placeholder="Qabiyyee..." class="w-full border-2 p-3 outline-none bg-gray-50 focus:border-red-700" required></textarea>
+                <div class="flex gap-4">
+                    <button type="submit" id="sub-btn" class="flex-grow bbc-red text-white py-3 font-black">PUBLISH</button>
+                    <button type="button" onclick="closeAdmin()" class="bg-gray-200 px-8 font-black">CANCEL</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
+
     <div id="article-modal" class="fixed inset-0 bg-white z-[6000] hidden overflow-y-auto">
         <div class="full-width bbc-red p-4 sticky top-0 flex justify-between items-center text-white shadow-md">
             <button onclick="closeArticle()" class="font-black flex items-center gap-2"><i class="fas fa-chevron-left"></i> BACK</button>
             <span class="font-black uppercase italic tracking-tighter text-xs">Deebii Tech & Media</span>
         </div>
         <div class="main-wrapper py-12">
-            <h1 id="art-title" class="text-3xl md:text-5xl font-black text-gray-900 mb-8 italic leading-tight"></h1>
+            <h1 id="art-title" class="text-3xl md:text-5xl font-black text-gray-900 mb-8 italic leading-tight text-justify"></h1>
             <img id="art-img" src="" class="w-full h-auto mb-10 shadow-xl rounded-sm">
             <div id="art-content" class="text-xl leading-relaxed whitespace-pre-wrap text-gray-800 font-serif text-justify"></div>
             <button onclick="deleteCurrentArticle()" id="del-btn-art" class="mt-12 text-red-600 font-bold text-xs uppercase border border-red-200 p-2 rounded hover:bg-red-50 transition">Haqi (Delete)</button>
@@ -196,6 +223,7 @@
 
         let currentOpenId = null;
 
+        function toggleMenu() { document.getElementById('mobile-menu').classList.toggle('active'); }
         function showAdmin() { if(prompt("Password:")==="1234") document.getElementById('admin-modal').style.display='flex'; }
         function closeAdmin() { document.getElementById('admin-modal').style.display='none'; }
         function closeArticle() { document.getElementById('article-modal').classList.add('hidden'); document.body.style.overflow='auto'; }
@@ -254,7 +282,7 @@
                     servGrid.innerHTML += `
                         <div class="bg-gray-50 p-6 border-t-4 border-red-700 shadow-sm cursor-pointer hover:bg-gray-100 transition" onclick="openArt('${doc.id}')">
                             <img src="${p.image}" class="w-12 h-12 mb-4 object-cover rounded shadow">
-                            <h4 class="font-bold mb-2">${p.title}</h4>
+                            <h4 class="font-bold mb-2 text-black">${p.title}</h4>
                             <p class="text-xs text-gray-500 line-clamp-2">${p.content}</p>
                         </div>`;
                 } else {
@@ -265,7 +293,7 @@
                         document.getElementById('hero-desc').innerText = p.content;
                         document.getElementById('hero-area').onclick = () => openArt(doc.id);
                     } else if(newsCount < 6) {
-                        side.innerHTML += `<div class="cursor-pointer hover:text-red-700 border-b pb-3" onclick="openArt('${doc.id}')">${p.title}</div>`;
+                        side.innerHTML += `<div class="cursor-pointer hover:text-red-700 border-b pb-3 mb-2" onclick="openArt('${doc.id}')">${p.title}</div>`;
                     }
                     if(newsCount > 0) {
                         grid.innerHTML += `
@@ -324,4 +352,5 @@
     </script>
 </body>
 </html>
+
 
