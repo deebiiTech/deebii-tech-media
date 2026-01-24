@@ -224,7 +224,18 @@
         let currentOpenId = null;
 
         function toggleMenu() { document.getElementById('mobile-menu').classList.toggle('active'); }
-        function showAdmin() { if(prompt("Password:")==="1234") document.getElementById('admin-modal').style.display='flex'; }
+        function showAdmin() {
+    // Password kana si qofatu beeka. 
+    // Qubee guddaa, xiqqaafi mallattoo fayyadamuun hack gochuun akka rakkisu godha.
+    const secretPass = "Deebii@Admin#2026"; 
+    const userPrompt = prompt("Sussubii Galchi (Admin Password):");
+
+    if (userPrompt === secretPass) {
+        document.getElementById('admin-modal').style.display = 'flex';
+    } else if (userPrompt !== null) {
+        alert("Dogoggora! Password sirrii miti.");
+    }
+}
         function closeAdmin() { document.getElementById('admin-modal').style.display='none'; }
         function closeArticle() { document.getElementById('article-modal').classList.add('hidden'); document.body.style.overflow='auto'; }
 
@@ -349,9 +360,30 @@
             }
         }
         window.onload = loadContent;
+        document.getElementById('feedback-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('fb-btn');
+    btn.innerText = "ERGAMAALEE JIRA...";
+    
+    try {
+        await db.collection('messages').add({
+            name: document.getElementById('fb-name').value,
+            email: document.getElementById('fb-email').value,
+            message: document.getElementById('fb-msg').value,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert("Yaada keessaniif galatoomaa!");
+        document.getElementById('feedback-form').reset();
+    } catch(err) {
+        alert("Dogoggora: " + err.message);
+    } finally {
+        btn.innerText = "ERGAA ERGI";
+    }
+};
     </script>
 </body>
 </html>
+
 
 
 
