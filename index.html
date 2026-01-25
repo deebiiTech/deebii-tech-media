@@ -35,7 +35,8 @@
     text-align: justify;
     text-justify: inter-word;
 }
-
+#delete-btn { display: none; } /* Jalqaba irratti ni dhokata */
+.admin-only { display: none; } /* Waantota admin qofaa hundi ni dhokatu */
         input::placeholder { font-size: 12px; opacity: 0.7; }
         .hero-gradient { background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); }
     </style>   
@@ -307,7 +308,9 @@
 
         <div class="mt-20 pt-10 border-t border-gray-100 flex justify-between items-center">
             <p class="text-xs text-gray-400 uppercase font-bold">© 2026 Deebii Tech & Media</p>
-            <button onclick="deleteCurrentArticle()" class="text-red-600 text-[10px] font-bold border border-red-100 px-4 py-2 rounded hover:bg-red-50 uppercase">Haqi (Delete)</button>
+            <button id="delete-btn" onclick="deleteCurrentArticle()" class="admin-only text-red-600 text-[10px] font-bold border border-red-100 px-4 py-2 rounded hover:bg-red-50 uppercase">
+    Haqi (Delete)
+</button>
         </div>
     </article>
 </div>
@@ -413,11 +416,20 @@
 
         // 3. Admin & Content Management
         function showAdmin() {
-            const secretPass = "Deebii@Admin#2026";
-            const userPrompt = prompt("Sussubii Galchi (Admin Password):");
-            if (userPrompt === secretPass) document.getElementById('admin-modal').style.display = 'flex';
-            else if (userPrompt) alert("Password sirrii miti!");
-        }
+    let pw = prompt("Password Admin Galchi:");
+    if(pw === "Deebii@Admin#2026") {
+        // Password sirrii yoo ta'e 'Admin Mode' ni banama
+        document.getElementById('admin-modal').style.display = 'flex';
+        
+        // Bultoonii Delete hunda akka mullatu godha
+        const adminElements = document.querySelectorAll('.admin-only');
+        adminElements.forEach(el => el.style.display = 'block');
+        
+        alert("Admin Mode Banameera! Amma maxxansa haquu dandeessa.");
+    } else {
+        alert("Password Dogoggora!");
+    }
+}
         
         function closeAdmin() { document.getElementById('admin-modal').style.display = 'none'; }
         
@@ -612,6 +624,7 @@ function copyLink() {
     </script>
 </body>
 </html>
+
 
 
 
