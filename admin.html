@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="om">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Kitaaba Galchi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen font-sans">
+
+    <div class="max-w-xl mx-auto py-16 px-6">
+        <div class="bg-slate-800 p-8 rounded-sm border-l-8 border-red-700 shadow-2xl">
+            <h2 class="text-3xl font-black uppercase italic mb-8 border-b border-white/10 pb-4">Kitaaba Haaraa Galchi</h2>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-[10px] font-black uppercase mb-2 text-gray-400 tracking-widest">Maqaa Kitaabaa</label>
+                    <input type="text" id="title" class="w-full bg-white/5 border border-white/10 p-3 outline-none focus:border-red-700 transition" placeholder="Fkn: Seenaa Jireenyaa">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black uppercase mb-2 text-gray-400 tracking-widest">Gatii (ETB)</label>
+                    <input type="number" id="price" class="w-full bg-white/5 border border-white/10 p-3 outline-none focus:border-red-700 transition" placeholder="100">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black uppercase mb-2 text-gray-400 tracking-widest">Linkii Suuraa (Imgur)</label>
+                    <input type="text" id="imgUrl" class="w-full bg-white/5 border border-white/10 p-3 outline-none focus:border-red-700 transition" placeholder="https://i.imgur.com/example.jpg">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black uppercase mb-2 text-gray-400 tracking-widest">Linkii PDF (Google Drive)</label>
+                    <input type="text" id="pdfUrl" class="w-full bg-white/5 border border-white/10 p-3 outline-none focus:border-red-700 transition" placeholder="https://drive.google.com/...">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black uppercase mb-2 text-gray-400 tracking-widest">Ibsa Kitaabaa</label>
+                    <textarea id="desc" rows="3" class="w-full bg-white/5 border border-white/10 p-3 outline-none focus:border-red-700 transition" placeholder="Waa'ee kitaaba kanaa gabaabsii barreessi..."></textarea>
+                </div>
+
+                <button onclick="saveBook()" id="btn" class="w-full bg-red-700 py-4 font-black uppercase hover:bg-white hover:text-black transition duration-500 shadow-lg text-white">
+                    Save & Publish
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. FIREBASE CONFIG KEE SIRRII ASITTI GALCHI
+        // 1. Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA4PdrEH0NAuIWyvl0mP2M3g_L7qNPu8I4",
+            authDomain: "deebii-tech-haaraa.firebaseapp.com",
+            projectId: "deebii-tech-haaraa",
+            appId: "1:521271871630:web:ad10b4227ec94953d161df"
+        };
+
+        // Firebase Initialize gochuu (Hundeessuu)
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
+        // 2. FUNCTION KITAABA SAVE GOCHU
+        function saveBook() {
+            const btn = document.getElementById('btn');
+            const title = document.getElementById('title').value;
+            const price = document.getElementById('price').value;
+            const imgUrl = document.getElementById('imgUrl').value;
+            const pdfUrl = document.getElementById('pdfUrl').value;
+            const desc = document.getElementById('desc').value;
+
+            if(!title || !price || !pdfUrl) {
+                alert("Maaloo, Maqaa, Gatii fi Linkii PDF guutuu kee mirkaneessi!");
+                return;
+            }
+
+            btn.innerText = "Saving...";
+            btn.disabled = true;
+
+            // Database keessatti kuusuu
+            db.collection("books").add({
+                title: title,
+                price: price,
+                imgUrl: imgUrl,
+                pdfUrl: pdfUrl,
+                desc: desc,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                alert("Kitaabni nagaadhaan dabalameera!");
+                window.location.reload();
+            })
+            .catch((error) => {
+                console.error("Rakkoo Firebase: ", error);
+                alert("Dogoggora: " + error.message);
+                btn.innerText = "Save & Publish";
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
