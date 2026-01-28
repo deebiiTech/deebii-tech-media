@@ -809,9 +809,31 @@ Erga kaffaltanii booda 'Transaction ID' (Lakkoofsa kaffaltii) asitti galchaa:`;
         alert("Maaloo, Transaction ID galchuun dirqama!");
     }
 }
+
+} // <--- HandlePayment asitti xumurama
+
+// ------ KANA AMMA ASITTI Dabalii (Copy-Paste) ------
+
+const urlParams = new URLSearchParams(window.location.search);
+const bookToBuy = urlParams.get('buy');
+
+if (bookToBuy) {
+    // Sekondii 2 eeggata (hamma ragaan Firebase irraa dhufutti)
+    setTimeout(() => {
+        db.collection("books").doc(bookToBuy).get().then((doc) => {
+            if (doc.exists) {
+                const book = doc.data();
+                handlePayment(doc.id, book.price, book.title, book.pdfUrl);
+            }
+        });
+    }, 2000); 
+}
+
+// ------ KANATU XUMURE ------
     </script>
 </body>
 </html>
+
 
 
 
