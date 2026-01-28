@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Kitaaba Galchi</title>
+    <title>Admin - Kitaaba Galchi & Mirkaneessi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
@@ -11,7 +11,7 @@
 <body class="bg-slate-900 text-white min-h-screen font-sans">
 
     <div class="max-w-xl mx-auto py-16 px-6">
-        <div class="bg-slate-800 p-8 rounded-sm border-l-8 border-red-700 shadow-2xl">
+        <div class="bg-slate-800 p-8 rounded-sm border-l-8 border-red-700 shadow-2xl mb-10">
             <h2 class="text-3xl font-black uppercase italic mb-8 border-b border-white/10 pb-4">Kitaaba Haaraa Galchi</h2>
             
             <div class="space-y-6">
@@ -45,11 +45,16 @@
                 </button>
             </div>
         </div>
+
+        <div class="bg-slate-800 p-8 rounded-sm border-l-8 border-yellow-600 shadow-2xl">
+            <h2 class="text-2xl font-black uppercase italic mb-6 border-b border-white/10 pb-4 text-yellow-500">Kaffaltiiwwan Eeggatan</h2>
+            <div id="pendingOrders" class="space-y-4">
+                <p class="text-gray-500 text-sm italic">Hamma ammaatti kaffaltiin haaraa hin jiru...</p>
+            </div>
+        </div>
     </div>
 
     <script>
-        // 1. FIREBASE CONFIG KEE SIRRII ASITTI GALCHI
-        // 1. Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyA4PdrEH0NAuIWyvl0mP2M3g_L7qNPu8I4",
             authDomain: "deebii-tech-haaraa.firebaseapp.com",
@@ -57,13 +62,12 @@
             appId: "1:521271871630:web:ad10b4227ec94953d161df"
         };
 
-        // Firebase Initialize gochuu (Hundeessuu)
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const db = firebase.firestore();
 
-        // 2. FUNCTION KITAABA SAVE GOCHU
+        // --- 1. Kitaaba Save Gochuu ---
         function saveBook() {
             const btn = document.getElementById('btn');
             const title = document.getElementById('title').value;
@@ -80,7 +84,6 @@
             btn.innerText = "Saving...";
             btn.disabled = true;
 
-            // Database keessatti kuusuu
             db.collection("books").add({
                 title: title,
                 price: price,
@@ -94,11 +97,52 @@
                 window.location.reload();
             })
             .catch((error) => {
-                console.error("Rakkoo Firebase: ", error);
                 alert("Dogoggora: " + error.message);
                 btn.innerText = "Save & Publish";
                 btn.disabled = false;
             });
+        }
+
+        // --- 2. Kaffaltiiwwan 'Pending' Ta'an Fiduu ---
+        db.collection("orders").where("status", "==", "pending")
+        .onSnapshot((snapshot) => {
+            const container = document.getElementById("pendingOrders");
+            if (snapshot.empty) {
+                container.innerHTML = '<p class="text-gray-500 text-sm italic">Hamma ammaatti kaffaltiin haaraa hin jiru...</p>';
+                return;
+            }
+
+            container.innerHTML = ""; 
+            snapshot.forEach((doc) => {
+                const order = doc.data();
+                container.innerHTML += `
+                    <div class="bg-black/40 border border-white/10 p-4 rounded-sm shadow-md">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-red-500">${order.bookTitle}</h4>
+                                <p class="text-[11px] text-gray-400 mt-1">TxID: <span class="text-white font-mono">${order.transactionId}</span></p>
+                                <p class="text-[11px] text-gray-400">Gatii: ${order.price} ETB</p>
+                            </div>
+                            <button onclick="approveOrder('${doc.id}')" class="bg-green-700 hover:bg-green-600 text-white text-[10px] font-black px-4 py-2 uppercase transition">
+                                Approve
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+
+        // --- 3. Kaffaltii Mirkaneessuuf (Approve) ---
+        function approveOrder(orderId) {
+            if(confirm("Kaffaltii kana baankii keetti galuu isaa mirkaneessiteettaa?")) {
+                db.collection("orders").doc(orderId).update({
+                    status: "approved"
+                }).then(() => {
+                    alert("Kaffaltiin mirkanaa'eera! Namichi amma kitaaba buufachuu danda'a.");
+                }).catch((err) => {
+                    alert("Rakkoo uumame: " + err.message);
+                });
+            }
         }
     </script>
 </body>
