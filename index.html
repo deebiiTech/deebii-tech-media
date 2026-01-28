@@ -81,34 +81,34 @@
 <script src="https://api.chapa.co/v1/inline.js"></script>
 
 <script>
-    // 1. RAGA KITAABAA FIRESTORE IRRAA FIDUU
-    const myStoreDb = firebase.firestore();
+   // 1. RAGA KITAABAA FIRESTORE IRRAA FIDUU
+const myStoreDb = firebase.firestore();
 
-    myStoreDb.collection("books").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
-        const bookContainer = document.getElementById('book-container');
-        if (!bookContainer) return;
+myStoreDb.collection("books").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
+    const bookContainer = document.getElementById('book-container');
+    if (!bookContainer) return;
 
-        bookContainer.innerHTML = ""; // Loading balleessuuf
+    bookContainer.innerHTML = ""; // Loading balleessuuf
 
-        snapshot.forEach((doc) => {
-            const book = doc.data();
-            // Kaardii Kitaabaa uumuu
-            bookContainer.innerHTML += `
-                <div class="bg-white p-4 rounded shadow-md border border-gray-100">
-                    <img src="${book.imgUrl}" class="w-full h-48 object-cover rounded mb-4">
-                    <h3 class="text-lg font-bold">${book.title}</h3>
-                    <p class="text-gray-500 text-sm mb-4">${book.desc}</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-red-600 font-bold">${book.price} ETB</span>
-                        <button onclick="handlePayment('${doc.id}', '${book.price}', '${book.title}', '${book.pdfUrl}')" 
-                                class="bg-red-700 text-white px-4 py-2 rounded text-sm uppercase font-black">
-                           Bitadhu
-                        </button>
-                    </div>
+    snapshot.forEach((doc) => {
+        const book = doc.data();
+        // Kaardii Kitaabaa uumuu - 'id' asitti dabalameera
+        bookContainer.innerHTML += `
+            <div id="${doc.id}" class="bg-white p-4 rounded shadow-md border border-gray-100 transition-all duration-500">
+                <img src="${book.imgUrl}" class="w-full h-48 object-cover rounded mb-4">
+                <h3 class="text-lg font-bold">${book.title}</h3>
+                <p class="text-gray-500 text-sm mb-4">${book.desc}</p>
+                <div class="flex justify-between items-center">
+                    <span class="text-red-600 font-bold">${book.price} ETB</span>
+                    <button onclick="handlePayment('${doc.id}', '${book.price}', '${book.title}', '${book.pdfUrl}')" 
+                            class="bg-red-700 text-white px-4 py-2 rounded text-sm uppercase font-black">
+                       Bitadhu
+                    </button>
                 </div>
-            `;
-        });
+            </div>
+        `;
     });
+});
 
     // 2. FUNCTION KAFFALTII FI DOWNLOAD
     function handlePayment(bookId, price, title, pdfUrl) {
@@ -782,7 +782,6 @@ Erga kaffaltanii booda 'Transaction ID' (Lakkoofsa kaffaltii) asitti galchaa:`;
 
     if (txId && txId.trim() !== "") {
         try {
-            // A. Firebase irratti save gochuu
             const docRef = await db.collection("orders").add({
                 bookId: bookId,
                 bookTitle: title,
@@ -792,23 +791,19 @@ Erga kaffaltanii booda 'Transaction ID' (Lakkoofsa kaffaltii) asitti galchaa:`;
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            // B. Telegram Notification
             const botToken = "8065965842:AAHJxou2IwznMCDyednfnLF3P9R7oxxYA9g"; 
             const chatId = "6330253986"; 
             const telegramText = `🚀 **Kaffaltii Kitaabaa Haaraa!**\n\n📖 Kitaaba: ${title}\n💰 Gatii: ${price} ETB\n🔑 TxID: ${txId}\n\nMaaloo Firebase irratti koodii kaffaltii kana mirkaneessi!`;
 
             fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(telegramText)}&parse_mode=Markdown`);
 
-            // C. HORDOFFII EEGALUU (Listener) - Laptop Furmaata
             db.collection("orders").doc(docRef.id).onSnapshot((doc) => {
                 const data = doc.data();
                 if (data && data.status === "approved") {
                     alert("Gammachuu! Kaffaltiin keessan mirkanaa'eera. Kitaabni keessan amma ni banama.");
                     
-                    // Laptop irratti pop-up akka hin dhowwamneef mala kanaan fayyadamna
                     const win = window.open(pdfUrl, "_blank");
                     if (!win || win.closed || typeof win.closed == 'undefined') {
-                        // Yoo browser-ri Laptop pop-up dhowwe, linkii kallaattiin itti agarsiisa
                         alert("Maaloo, browser keessan irratti 'Pop-up' allow godhaa, ykn linkii kanaan buufadhaa: " + pdfUrl);
                         window.location.href = pdfUrl; 
                     }
@@ -826,27 +821,37 @@ Erga kaffaltanii booda 'Transaction ID' (Lakkoofsa kaffaltii) asitti galchaa:`;
     }
 }
 
-// --- KUTAA LINKII (DIRECT LINK) ---
-// Maxxansa akka hin jeeqneef koodii fetchBooks() keessa galchuu mannaa qofaa isaa asitti eeggata
+// --- KUTAA LINKII (DIRECT LINK TO IMAGE/SCROLL) ---
 window.addEventListener('load', () => {
-    // Sekondii 4 eeggata hamma weebsaayitiin ragaa hunda fiduun xumurutti
     setTimeout(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const bookToBuy = urlParams.get('buy');
 
         if (bookToBuy) {
-            db.collection("books").doc(bookToBuy).get().then((doc) => {
-                if (doc.exists) {
-                    const book = doc.data();
-                    handlePayment(doc.id, book.price, book.title, book.pdfUrl);
-                }
-            }).catch(err => console.log("Direct link fetch error:", err));
+            // Dura elementii kitaabaa ID sana qabu barbaada
+            const bookElement = document.getElementById(bookToBuy);
+            
+            if (bookElement) {
+                // 1. Gara kitaaba sanaatti nama fida (Scroll)
+                bookElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // 2. Kitaaba sana bifa addaan (Border diimaa) agarsiisa
+                bookElement.style.border = "4px solid #ef4444";
+                bookElement.style.borderRadius = "12px";
+                bookElement.style.transition = "all 0.5s ease";
+                
+                console.log("Kitaabni linkii irratti dhufe argameera.");
+            } else {
+                // Yoo weebsaayitiin fe'amee dhumuu baate irra deebiaa barbaada
+                console.log("Kitaabni ammatti hin fe'amne.");
+            }
         }
     }, 4000); 
 });
     </script>
 </body>
 </html>
+
 
 
 
