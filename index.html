@@ -809,10 +809,21 @@ Erga kaffaltanii booda 'Transaction ID' (Lakkoofsa kaffaltii) asitti galchaa:`;
     } else {
         alert("Maaloo, Transaction ID galchuun dirqama!");
     }
+        // A. Koodii kana 'await db.collection("orders").add(...)' jala galchi
+const orderId = docRef.id; // ID kaffaltii sanaa qabachuu
+
+// B. Battalumatti hordoffii eegaluu
+db.collection("orders").doc(orderId).onSnapshot((doc) => {
+    if (doc.data().status === "approved") {
+        alert("Gammachuu! Kaffaltiin keessan mirkanaa'eera. Kitaabni keessan amma ni banama.");
+        window.open(pdfUrl, "_blank"); // Kitaaba kallaattiin bana
+    }
+});
 }
     </script>
 </body>
 </html>
+
 
 
 
