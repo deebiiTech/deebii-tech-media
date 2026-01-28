@@ -782,7 +782,7 @@ Erga kaffaltanii booda 'Transaction ID' (Lakkoofsa kaffaltii) asitti galchaa:`;
 
     if (txId && txId.trim() !== "") {
         try {
-            // A. Firebase irratti save gochuu (docRef asitti uumameera)
+            // A. Firebase irratti save gochuu
             const docRef = await db.collection("orders").add({
                 bookId: bookId,
                 bookTitle: title,
@@ -792,21 +792,26 @@ Erga kaffaltanii booda 'Transaction ID' (Lakkoofsa kaffaltii) asitti galchaa:`;
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            // B. Sii Telegram irratti Notification battalaa erguu
+            // B. Telegram Notification
             const botToken = "8065965842:AAHJxou2IwznMCDyednfnLF3P9R7oxxYA9g"; 
             const chatId = "6330253986"; 
-            
             const telegramText = `🚀 **Kaffaltii Kitaabaa Haaraa!**\n\n📖 Kitaaba: ${title}\n💰 Gatii: ${price} ETB\n🔑 TxID: ${txId}\n\nMaaloo Firebase irratti koodii kaffaltii kana mirkaneessi!`;
 
             fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(telegramText)}&parse_mode=Markdown`);
 
-            // C. BATTALUMATTI HORDOFFII EEGALUU (Listener)
-            // Koodiin kun 'try' keessa jiraachuu qaba
+            // C. HORDOFFII EEGALUU (Listener) - Laptop Furmaata
             db.collection("orders").doc(docRef.id).onSnapshot((doc) => {
                 const data = doc.data();
                 if (data && data.status === "approved") {
                     alert("Gammachuu! Kaffaltiin keessan mirkanaa'eera. Kitaabni keessan amma ni banama.");
-                    window.open(pdfUrl, "_blank"); 
+                    
+                    // Laptop irratti pop-up akka hin dhowwamneef mala kanaan fayyadamna
+                    const win = window.open(pdfUrl, "_blank");
+                    if (!win || win.closed || typeof win.closed == 'undefined') {
+                        // Yoo browser-ri Laptop pop-up dhowwe, linkii kallaattiin itti agarsiisa
+                        alert("Maaloo, browser keessan irratti 'Pop-up' allow godhaa, ykn linkii kanaan buufadhaa: " + pdfUrl);
+                        window.location.href = pdfUrl; 
+                    }
                 }
             });
 
@@ -820,9 +825,29 @@ Erga kaffaltanii booda 'Transaction ID' (Lakkoofsa kaffaltii) asitti galchaa:`;
         alert("Maaloo, Transaction ID galchuun dirqama!");
     }
 }
+
+// --- KUTAA LINKII (DIRECT LINK) ---
+// Maxxansa akka hin jeeqneef koodii fetchBooks() keessa galchuu mannaa qofaa isaa asitti eeggata
+window.addEventListener('load', () => {
+    // Sekondii 4 eeggata hamma weebsaayitiin ragaa hunda fiduun xumurutti
+    setTimeout(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookToBuy = urlParams.get('buy');
+
+        if (bookToBuy) {
+            db.collection("books").doc(bookToBuy).get().then((doc) => {
+                if (doc.exists) {
+                    const book = doc.data();
+                    handlePayment(doc.id, book.price, book.title, book.pdfUrl);
+                }
+            }).catch(err => console.log("Direct link fetch error:", err));
+        }
+    }, 4000); 
+});
     </script>
 </body>
 </html>
+
 
 
 
