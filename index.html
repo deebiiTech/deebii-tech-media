@@ -812,27 +812,36 @@ Erga kaffaltanii booda 'Transaction ID' (Lakkoofsa kaffaltii) asitti galchaa:`;
 
 } // <--- HandlePayment asitti xumurama
 
-// ------ KANA AMMA ASITTI Dabalii (Copy-Paste) ------
+/// --- Function HandlePayment (Inni duraan ture) ---
+async function handlePayment(bookId, price, title, pdfUrl) {
+    // ... koodii kaffaltii kee isa guutuu asitti dhiisi ...
+    // ... xumura handlePayment irratti '}' tokko qofa akka qabaatu mirkaneessi
+} 
 
-const urlParams = new URLSearchParams(window.location.search);
-const bookToBuy = urlParams.get('buy');
+// --- KANAA GADITTI QOFAA ISAA GALCHI (handlePayment keessatti miti!) ---
 
-if (bookToBuy) {
-    // Sekondii 2 eeggata (hamma ragaan Firebase irraa dhufutti)
-    setTimeout(() => {
-        db.collection("books").doc(bookToBuy).get().then((doc) => {
-            if (doc.exists) {
-                const book = doc.data();
-                handlePayment(doc.id, book.price, book.title, book.pdfUrl);
-            }
-        });
-    }, 2000); 
-}
+window.addEventListener('DOMContentLoaded', (event) => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const bookToBuy = urlParams.get('buy');
 
-// ------ KANATU XUMURE ------
+    if (bookToBuy) {
+        // Sekondii 3 eeggata hamma weebsaayitiin hundi fe'amutti
+        setTimeout(() => {
+            db.collection("books").doc(bookToBuy).get().then((doc) => {
+                if (doc.exists) {
+                    const book = doc.data();
+                    handlePayment(doc.id, book.price, book.title, book.pdfUrl);
+                }
+            }).catch((error) => {
+                console.log("Error getting book:", error);
+            });
+        }, 3000);
+    }
+});
     </script>
 </body>
 </html>
+
 
 
 
