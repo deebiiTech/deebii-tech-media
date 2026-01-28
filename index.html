@@ -771,19 +771,15 @@ function copyLink() {
     const msg = `Kaffaltii Kitaaba "${title}" Raawwachuuf:
 ------------------------------------------
 Gatii: ${price} ETB
-
 Kaardii ykn Baankii Kanaan Kaffalaa:
 • Telebirr: 0942420578 / 0910166955
 • CBE Account: 1000293554629
-
 Erga kaffaltanii booda 'Transaction ID' (Lakkoofsa kaffaltii) asitti galchaa:`;
-
     const txId = prompt(msg);
-
     if (txId && txId.trim() !== "") {
         try {
-            // A. Firebase irratti save gochuu
-            await db.collection("orders").add({
+            // A. Firebase irratti save gochuu (HARKAAconst docRef = dabaleera)
+            const docRef = await db.collection("orders").add({
                 bookId: bookId,
                 bookTitle: title,
                 price: price,
@@ -791,17 +787,20 @@ Erga kaffaltanii booda 'Transaction ID' (Lakkoofsa kaffaltii) asitti galchaa:`;
                 status: "pending",
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-
             // B. Sii Telegram irratti Notification battalaa erguu
             const botToken = "8065965842:AAHJxou2IwznMCDyednfnLF3P9R7oxxYA9g"; 
-            const chatId = "6330253986"; // CHAT ID kee asitti galchi
-            
+            const chatId = "6330253986"; 
             const telegramText = `🚀 **Kaffaltii Kitaabaa Haaraa!**\n\n📖 Kitaaba: ${title}\n💰 Gatii: ${price} ETB\n🔑 TxID: ${txId}\n\nMaaloo Firebase irratti koodii kaffaltii kana mirkaneessi!`;
-
             fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(telegramText)}&parse_mode=Markdown`);
-
+            // C. Hordoffii (Listener) - Akka inni battala ati Approve gootu banuuf
+            db.collection("orders").doc(docRef.id).onSnapshot((doc) => {
+                const data = doc.data();
+                if (data && data.status === "approved") {
+                    alert("Gammachuu! Kaffaltiin keessan mirkanaa'eera. Kitaabni keessan amma ni banama.");
+                    window.open(pdfUrl, "_blank"); 
+                }
+            });
             alert("Galatoomaa! Koodiin kaffaltii keessan (" + txId + ") ergameera. Erga mirkanaa'ee booda kitaaba keessan buufachuu dandeessu.");
-
         } catch (error) {
             console.error("Error:", error);
             alert("Rakkoon uumameera, irra deebiaa yaalaa.");
@@ -809,20 +808,11 @@ Erga kaffaltanii booda 'Transaction ID' (Lakkoofsa kaffaltii) asitti galchaa:`;
     } else {
         alert("Maaloo, Transaction ID galchuun dirqama!");
     }
-        // A. Koodii kana 'await db.collection("orders").add(...)' jala galchi
-const orderId = docRef.id; // ID kaffaltii sanaa qabachuu
-
-// B. Battalumatti hordoffii eegaluu
-db.collection("orders").doc(orderId).onSnapshot((doc) => {
-    if (doc.data().status === "approved") {
-        alert("Gammachuu! Kaffaltiin keessan mirkanaa'eera. Kitaabni keessan amma ni banama.");
-        window.open(pdfUrl, "_blank"); // Kitaaba kallaattiin bana
-    }
-});
 }
     </script>
 </body>
 </html>
+
 
 
 
