@@ -1,0 +1,20 @@
+{
+  "short_name": "Deebii Tech",
+  "name": "Deebii Tech & Media Solutions",
+  "icons": [
+    {
+      "src": "Logo.PNG",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "Logo.PNG",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#B80000",
+  "theme_color": "#B80000",
+  "display": "standalone"
+}
